@@ -1,0 +1,83 @@
+#include <iostream>
+#include <vector>
+#include <limits>
+#include <algorithm>
+
+using namespace std;
+
+const int INF = numeric_limits<int>::max();
+
+// Function to find the vertex with the minimum distance value
+int minDistance(const vector<int>& dist, const vector<bool>& sptSet, int V) {
+    int min = INF, min_index;
+    
+    for (int v = 0; v < V; v++) {
+        if (!sptSet[v] && dist[v] <= min) {
+            min = dist[v];
+            min_index = v;
+        }
+    }
+    
+    return min_index;
+}
+
+// Dijkstra’s algorithm
+void dijkstra(const vector<vector<int>>& graph, int src, int dest, int V) {
+    vector<int> dist(V, INF); // Distance from source to each vertex
+    vector<bool> sptSet(V, false); // sptSet[i] will be true if vertex i is included in the shortest path tree
+    vector<int> parent(V, -1); // To store the shortest path
+
+    dist[src] = 0;
+
+    // Find shortest path for all vertices
+    for (int count = 0; count < V - 1; count++) {
+        int u = minDistance(dist, sptSet, V);
+
+        sptSet[u] = true;
+
+        // Update dist value of the adjacent vertices of the picked vertex.
+        for (int v = 0; v < V; v++) {
+            if (!sptSet[v] && graph[u][v] && dist[u] != INF && dist[u] + graph[u][v] < dist[v]) {
+                dist[v] = dist[u] + graph[u][v];
+                parent[v] = u;
+            }
+        }
+    }
+
+    // Output the shortest path and cost
+    cout << "Cost of the shortest path: " << dist[dest] << endl;
+
+    // Backtrack to find the path
+    vector<int> path;
+    for (int v = dest; v != -1; v = parent[v]) {
+        path.push_back(v);
+    }
+    reverse(path.begin(), path.end());
+
+    cout << "Path: ";
+    for (int v : path) {
+        cout << v << " ";
+    }
+    cout << endl;
+}
+
+int main() {
+    int V = 5; // Number of vertices
+    vector<vector<int>> graph = {
+        {0, 10, 0, 30, 100},
+        {10, 0, 50, 0, 0},
+        {0, 50, 0, 20, 10},
+        {30, 0, 20, 0, 60},
+        {100, 0, 10, 60, 0}
+    };
+
+    int startNode, endNode;
+    cout << "Enter the starting node (0 to 4): ";
+    cin >> startNode;
+    cout << "Enter the ending node (0 to 4): ";
+    cin >> endNode;
+
+    dijkstra(graph, startNode, endNode, V);
+
+    return 0;
+}
